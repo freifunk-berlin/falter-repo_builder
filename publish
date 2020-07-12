@@ -1,0 +1,21 @@
+#!/bin/bash
+
+BUILD_OUTPUT_DIR="$1"
+PUBLISH_ROOT="$2"
+OPENWRT_VERSION="$3"
+FEED_NAME="$4"
+
+
+rm -r "$PUBLISH_ROOT/$OPENWRT_VERSION"
+for i in $BUILD_OUTPUT_DIR/packages/*/*; do
+  if [[ "$i" != *$FEED_NAME ]];
+  then
+    rm -r "$i";
+  else
+    ARCH=$(echo $i | awk -F'(packages)' '{print $2}' | awk -F'/' '{print $2}')
+    OUTDIR="$PUBLISH_ROOT/$OPENWRT_VERSION/$ARCH"
+    mkdir -p "$OUTDIR"
+    cp -r $i/* "$OUTDIR"
+  fi
+done
+

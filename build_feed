@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ "$1" == "incontainer" ]; then
+  INSTR_SET="$(ls build_dir | awk -F'-|(_musl)' '{print $2}')"
+  if [ -d "bin/packages/$INSTR_SET" ]
+  then
+    echo "$INSTR_SET was built before. Skip";
+    exit 0;
+  fi
+  echo "$FEED_LINE" >> feeds.conf.default
+  ./scripts/feeds update -a # luci falter
+  ./scripts/feeds install -a -p falter
+  make defconfig
+  echo "$FEED_NAME"
+  for pkg in $(./scripts/feeds list -r $FEED_NAME | awk '{print $1}'); do
+    make package/$pkg/compile -j8
+  done
+else
+  SDK_TAG="$1"
+  FEED_LINE="$2"
+  OUTPUT_DIR="$3"
+
+  FEED_NAME=$(echo $FEED_LINE | awk '{print $2}')
+  IMAGE="openwrtorg/sdk:$SDK_TAG"
+
+  docker pull "$IMAGE"
+  mkdir -p "$OUTPUT_DIR"
+  docker run --rm -it \
+	  -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
+	  -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
+	  -e "FEED_LINE=$FEED_LINE" \
+	  -e "FEED_NAME=$FEED_NAME" \
+	  "$IMAGE" \
+	  ./build_feed incontainer
+fi
+

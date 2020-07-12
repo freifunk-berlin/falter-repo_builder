@@ -1,0 +1,11 @@
+#!/bin/bash
+
+OPENWRT_VERSION="$1"
+FEED="$2"
+OUTPUT_DIR="$3"
+
+echo "retrieving all tags containing \"-$OPENWRT_VERSION\""
+for i in $(docker-hub -o openwrtorg -r sdk -a tags | grep "\-$OPENWRT_VERSION" | awk '{print $2'}); do
+	echo "building using $i"
+	./build_feed "$i" "$FEED" "$OUTPUT_DIR"
+done
