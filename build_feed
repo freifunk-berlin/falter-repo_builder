@@ -15,6 +15,7 @@ if [ "$1" == "incontainer" ]; then
   for pkg in $(./scripts/feeds list -r $FEED_NAME | awk '{print $1}'); do
     make package/$pkg/compile -j8
   done
+  make package/index
 else
   SDK_TAG="$1"
   FEED_LINE="$2"
