@@ -26,7 +26,7 @@ else
 
   docker pull "$IMAGE"
   mkdir -p "$OUTPUT_DIR"
-  docker run --rm -it \
+  docker run --rm \
 	  -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
 	  -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
 	  -e "FEED_LINE=$FEED_LINE" \
