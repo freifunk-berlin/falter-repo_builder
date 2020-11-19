@@ -17,7 +17,6 @@ if [ "$1" == "incontainer" ]; then
   done
   make package/index
 else
-  SDK_TAG="$1"
   FEED_LINE="$2"
   OUTPUT_DIR="$3"
 
@@ -26,7 +25,7 @@ else
 
   docker pull "$IMAGE"
   mkdir -p "$OUTPUT_DIR"
-  docker run --rm -it \
+  docker run --rm -i \
 	  -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
 	  -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
 	  -e "FEED_LINE=$FEED_LINE" \
