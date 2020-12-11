@@ -4,6 +4,19 @@ OPENWRT_VERSION="$1"
 FEED="$2"
 OUTPUT_DIR="$3"
 
+# check for dependencies
+DEPS="docker-hub docker"
+
+for package in $DEPS; do
+	which $package > /dev/null
+	if [ $? != 0 ]; then
+		echo "Dependencies: $DEPS"
+		echo "Package $package is not installed."
+		echo "Exiting..."
+		exit 1
+	fi
+done
+
 echo "retrieving all tags containing \"-$OPENWRT_VERSION\""
 for i in $(docker-hub -o openwrtorg -r sdk -a tags | grep "\-$OPENWRT_VERSION" | awk '{print $2'}); do
 	echo "building using $i"
