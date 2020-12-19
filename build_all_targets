@@ -3,6 +3,7 @@
 OPENWRT_VERSION="$1"
 FEED="$2"
 OUTPUT_DIR="$3"
+KEY="$4"
 
 declare -A archs
 archs["aarch64_cortex-a53"]=mediatek-mt7622
@@ -39,3 +40,13 @@ archs+=( ["x86_64"]=x86-64 )
 for key in ${!archs[@]}; do
         (./build_feed "${archs[${key}]}" "$FEED" "$OUTPUT_DIR") &
 done
+
+# wait for all builds
+wait
+
+#now sign
+cd $OUTPUT_DIR
+package_list=$(find -name "Packages")
+for list in $package_list; do
+	usign -S -m $list -s $KEY
+donec
