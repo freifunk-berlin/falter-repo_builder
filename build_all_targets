@@ -54,7 +54,7 @@ for key in ${!archs[@]}; do
 	SDK="${archs[${key}]}"
 	[ "$OPENWRT_VERSION" != "snapshot" ] && SDK+="-$OPENWRT_VERSION"
 	if [ -n "$BUILD_PARALLEL" ]; then
-		(./build_feed "$SDK" "$FEED" "$OUTPUT_DIR") &
+		(./build_feed "$SDK" "$FEED" "$OUTPUT_DIR" PARALLEL) &
 	else
 		./build_feed "$SDK" "$FEED" "$OUTPUT_DIR"
 	fi

@@ -26,12 +26,22 @@ else
 
   docker pull "$IMAGE"
   mkdir -p "$OUTPUT_DIR"
-  docker run --rm \
-	  -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
-	  -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
-	  -e "FEED_LINE=$FEED_LINE" \
-	  -e "FEED_NAME=$FEED_NAME" \
-	  "$IMAGE" \
-	  ./build_feed incontainer
+  if [ -n "$4" ]; then # Parallel build on buildbot needs to be performed without -i. Otherwise it won't work.
+    docker run --rm \
+      -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
+      -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
+      -e "FEED_LINE=$FEED_LINE" \
+      -e "FEED_NAME=$FEED_NAME" \
+      "$IMAGE" \
+      ./build_feed incontainer
+  else
+    docker run -it --rm \
+      -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
+      -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
+      -e "FEED_LINE=$FEED_LINE" \
+      -e "FEED_NAME=$FEED_NAME" \
+      "$IMAGE" \
+      ./build_feed incontainer
+    fi
 fi
 
