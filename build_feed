@@ -8,11 +8,17 @@ if [ "$1" == "incontainer" ]; then
     exit 0;
   fi
   echo "$FEED_LINE" >> feeds.conf.default
+  echo "src-git luci2_ffwizard https://github.com/stargieg/luci2-ffwizard.git" >> feeds.conf.default
   ./scripts/feeds update -a # luci falter
   ./scripts/feeds install -a -p falter
+  ./scripts/feeds install -a -p luci2_ffwizard
   make defconfig
   echo "$FEED_NAME"
-  for pkg in $(./scripts/feeds list -r $FEED_NAME | awk '{print $1}'); do
+  PACKAGES=$(./scripts/feeds list -r $FEED_NAME | awk '{print $1}')
+  PACKAGES=$PACKAGES" "$(./scripts/feeds list -r luci2_ffwizard | awk '{print $1}')
+  echo $PACKAGES
+
+  for pkg in $PACKAGES; do
     make package/$pkg/compile -j8
   done
   make package/index
