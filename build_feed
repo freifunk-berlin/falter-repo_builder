@@ -9,7 +9,7 @@ if [ "$1" == "incontainer" ]; then
   fi
   echo "$FEED_LINE" >> feeds.conf.default
   ./scripts/feeds update -a # luci falter
-  ./scripts/feeds install -a -p falter
+  ./scripts/feeds install -a -p "$FEED_NAME"
   make defconfig
   echo "$FEED_NAME"
   for pkg in $(./scripts/feeds list -r $FEED_NAME | awk '{print $1}'); do
