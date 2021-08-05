@@ -43,5 +43,9 @@ else
       "$IMAGE" \
       ./build_feed incontainer
     fi
+    # decrement job counter
+    CUR_JOBS=$(cat $COUNT_FILE)
+    CUR_JOBS=$(( $CUR_JOBS -1 ))
+    echo $CUR_JOBS > $COUNT_FILE
 fi
 

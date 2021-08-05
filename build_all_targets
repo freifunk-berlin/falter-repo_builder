@@ -5,6 +5,10 @@ FEED="$2"
 OUTPUT_DIR="$3"
 BUILD_PARALLEL="$4"
 
+MAX_JOBS=6
+CUR_JOBS=0
+export COUNT_FILE="/tmp/count.tmp"
+
 # check for dependencies
 DEPS="docker-hub docker"
 
@@ -54,8 +58,14 @@ for key in ${!archs[@]}; do
 	SDK="${archs[${key}]}"
 	[ "$OPENWRT_VERSION" != "snapshot" ] && SDK+="-$OPENWRT_VERSION"
 	if [ -n "$BUILD_PARALLEL" ]; then
+		CUR_JOBS=$(( $CUR_JOBS + 1 ))
+		echo $CUR_JOBS > $COUNT_FILE
 		(./build_feed "$SDK" "$FEED" "$OUTPUT_DIR" PARALLEL) &
 	else
 		./build_feed "$SDK" "$FEED" "$OUTPUT_DIR"
 	fi
+	while [ $CUR_JOBS -ge $MAX_JOBS ]; do
+		sleep 20
+		CUR_JOBS=$(cat $COUNT_FILE)
+	done
 done
