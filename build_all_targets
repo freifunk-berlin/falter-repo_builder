@@ -1,9 +1,8 @@
 #!/bin/bash
 
-OPENWRT_VERSION="$1"
-FEED="$2"
-OUTPUT_DIR="$3"
-BUILD_PARALLEL="$4"
+FEED="$1"
+OUTPUT_DIR="$2"
+BUILD_PARALLEL="$3"
 
 # check for dependencies
 DEPS="docker-hub docker"
@@ -17,6 +16,13 @@ for package in $DEPS; do
 		exit 1
 	fi
 done
+
+# download freifunk_release file from repo and determine sdk-version for feed
+BRANCH=$(echo "$FEED" | cut -d';' -f 2)
+FREIFUNK_RELEASE="https://raw.githubusercontent.com/Freifunk-Spalter/packages/${BRANCH}/packages/falter-common/files-common/etc/freifunk_release"
+TMP=$(curl -s $FREIFUNK_RELEASE)
+eval $TMP
+
 
 declare -A archs
 archs["aarch64_cortex-a53"]=mediatek-mt7622
@@ -52,7 +58,7 @@ archs+=( ["x86_64"]=x86-64 )
 
 for key in ${!archs[@]}; do
 	SDK="${archs[${key}]}"
-	[ "$OPENWRT_VERSION" != "snapshot" ] && SDK+="-$OPENWRT_VERSION"
+	[ "$FREIFUNK_OPENWRT_BASE" != "snapshot" ] && SDK+="-$FREIFUNK_OPENWRT_BASE"
 	if [ -n "$BUILD_PARALLEL" ]; then
 		(./build_feed "$SDK" "$FEED" "$OUTPUT_DIR" PARALLEL) &
 	else
