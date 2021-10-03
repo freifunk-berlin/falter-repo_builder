@@ -12,7 +12,7 @@ if [ "$1" == "incontainer" ]; then
   ./scripts/feeds install -a -p "$FEED_NAME"
   make defconfig
   echo "$FEED_NAME"
-  for pkg in $(./scripts/feeds list -r $FEED_NAME | awk '{print $1}'); do
+  for pkg in $(find feeds/$FEED_NAME -name Makefile | awk -F/ '{print $(NF - 1)}'); do
     make package/$pkg/compile -j8
   done
   make package/index
