@@ -21,6 +21,6 @@ This is a toolchain which aims to build the falter feed in an automated fashion.
 ```sh
 #!/bin/bash
 
-./build_all_targets 19.07.7 "src-git falter https://github.com/Freifunk-Spalter/packages.git;spo/master" /tmp/bin/
+./build_all_targets 19.07.7 'src-git falter https://github.com/Freifunk-Spalter/packages.git^8bd09448b8d7f349d0ee3502e5df9303b2272da0' /tmp/bin/
 ./publish "/tmp/bin/" "/var/www/html/" "19.07" "falter"
 ```
