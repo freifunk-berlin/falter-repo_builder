@@ -19,7 +19,7 @@ done
 
 # download freifunk_release file from repo and determine sdk-version for feed
 BRANCH=$(echo "$FEED" | cut -d'^' -f 2)
-FREIFUNK_RELEASE="https://raw.githubusercontent.com/Freifunk-Spalter/packages/${BRANCH}/packages/falter-common/files-common/etc/freifunk_release"
+FREIFUNK_RELEASE="https://raw.githubusercontent.com/freifunk-berlin/falter-packages/${BRANCH}/packages/falter-common/files-common/etc/freifunk_release"
 TMP=$(curl -s $FREIFUNK_RELEASE)
 eval $TMP
 
