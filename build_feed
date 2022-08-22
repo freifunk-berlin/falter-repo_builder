@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 if [ "$1" == "incontainer" ]; then
   INSTR_SET="$(ls build_dir | awk -F'-|(_musl)' '{print $2}')"
   if [ -d "bin/packages/$INSTR_SET" ]
@@ -8,14 +10,20 @@ if [ "$1" == "incontainer" ]; then
     exit 0;
   fi
   echo "$FEED_LINE" >> feeds.conf.default
-  ./scripts/feeds update -a # luci falter
-  ./scripts/feeds install -a -p "$FEED_NAME"
-  make defconfig
-  echo "$FEED_NAME"
-  for pkg in $(find feeds/$FEED_NAME -name Makefile | awk -F/ '{print $(NF - 1)}'); do
-    make package/$pkg/compile -j8
-  done
-  make package/index
+
+  # the grep pipes further down would otherwise be buffered
+  unbuf="stdbuf --output=0 --error=0"
+  {
+    ./scripts/feeds update -a # alternatively: -p luci falter
+    ./scripts/feeds install -a -p "$FEED_NAME"
+    make defconfig
+    for pkg in $(find feeds/$FEED_NAME -name Makefile | awk -F/ '{print $(NF - 1)}'); do
+      make -j8 V=s "package/$pkg/compile"
+    done
+    make package/index V=s
+  } |& $unbuf grep -v 'warning: ignoring type redefinition' \
+    | $unbuf grep -v 'warning: defaults for choice' \
+    | $unbuf grep -v "linux/Makefile' has a dependency"
 else
   SDK_TAG="$1"
   FEED_LINE="$2"
