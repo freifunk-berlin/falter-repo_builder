@@ -4,18 +4,7 @@ FEED="$1"
 OUTPUT_DIR="$2"
 BUILD_PARALLEL="$3"
 
-# check for dependencies
-DEPS="docker-hub docker"
-
-for package in $DEPS; do
-	which $package > /dev/null
-	if [ $? != 0 ]; then
-		echo "Dependencies: $DEPS"
-		echo "Package $package is not installed."
-		echo "Exiting..."
-		exit 1
-	fi
-done
+which podman >/dev/null || (echo "Please install Podman" && exit 1)
 
 # download freifunk_release file from repo and determine sdk-version for feed
 BRANCH=$(echo "$FEED" | cut -d'^' -f 2)

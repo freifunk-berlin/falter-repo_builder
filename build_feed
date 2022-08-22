@@ -3,13 +3,17 @@
 set -ex
 
 if [ "$1" == "incontainer" ]; then
+  cd /home/build/openwrt
+
   INSTR_SET="$(ls build_dir | awk -F'-|(_musl)' '{print $2}')"
   if [ -d "bin/packages/$INSTR_SET" ]
   then
     echo "$INSTR_SET was built before. Skip";
     exit 0;
   fi
+
   echo "$FEED_LINE" >> feeds.conf.default
+  FEED_NAME=$(echo $FEED_LINE | awk '{print $2}')
 
   logfile="bin/packages/$INSTR_SET/$FEED_NAME/build.log"
   mkdir -p "$(dirname "$logfile")"
@@ -33,27 +37,18 @@ else
   FEED_LINE="$2"
   OUTPUT_DIR="$3"
 
-  FEED_NAME=$(echo $FEED_LINE | awk '{print $2}')
-  IMAGE="openwrtorg/sdk:$SDK_TAG"
+  # Parallel build on buildbot needs to be performed without -i. Otherwise it won't work.
+  [ ! -n "$4" ] && ARGS="-it"
 
-  docker pull "$IMAGE"
+  IMAGE="docker.io/openwrtorg/sdk:$SDK_TAG"
+
+  podman pull "$IMAGE"
   mkdir -p "$OUTPUT_DIR"
-  if [ -n "$4" ]; then # Parallel build on buildbot needs to be performed without -i. Otherwise it won't work.
-    docker run --rm \
-      -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
-      -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
-      -e "FEED_LINE=$FEED_LINE" \
-      -e "FEED_NAME=$FEED_NAME" \
-      "$IMAGE" \
-      ./build_feed incontainer
-  else
-    docker run -it --rm \
-      -v "$(pwd)/build_feed:/home/build/openwrt/build_feed" \
-      -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
-      -e "FEED_LINE=$FEED_LINE" \
-      -e "FEED_NAME=$FEED_NAME" \
-      "$IMAGE" \
-      ./build_feed incontainer
-    fi
+  podman run $ARGS --rm \
+    --userns=keep-id \
+    -v "$(pwd):/home/build/repobuilder:ro,Z" \
+    -v "$OUTPUT_DIR/:/home/build/openwrt/bin" \
+    -e "FEED_LINE=$FEED_LINE" \
+    "$IMAGE" \
+    /home/build/repobuilder/build_feed incontainer
 fi
-
