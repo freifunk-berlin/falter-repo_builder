@@ -23,42 +23,41 @@ FREIFUNK_RELEASE="https://raw.githubusercontent.com/freifunk-berlin/falter-packa
 TMP=$(curl -s $FREIFUNK_RELEASE)
 eval $TMP
 
+sdks=(
+	"apm821xx-nand"
+	"at91-sama5"
+	"ath79-generic"
+	"bcm27xx-bcm2708"
+	"bcm47xx-legacy"
+	"bcm47xx-mips74k"
+	"bcm53xx-generic"
+	"bcm63xx-generic"
+	"gemini-generic"
+	"ipq40xx-generic"
+	"ipq806x-generic"
+	"kirkwood-generic"
+	"layerscape-armv8_64b"
+	"mpc85xx-p1010"
+	"mvebu-cortexa72"
+	"mvebu-cortexa9"
+	"mxs-generic"
+	"octeon-generic"
+	"oxnas-ox820"
+	"pistachio-generic"
+	"ramips-mt7620"
+	"ramips-rt288x"
+	"sunxi-cortexa7"
+	"sunxi-cortexa8"
+	"x86-64"
+	"x86-generic"
+	"x86-geode"
+	"zynq-generic"
+	"mediatek-mt7622"
+)
 
-declare -A archs
-archs["aarch64_cortex-a53"]=mediatek-mt7622
-archs+=( ["aarch64_cortex-a72"]=mvebu-cortexa72 )
-archs+=( ["aarch64_generic"]=layerscape-armv8_64b )
-archs+=( ["arm_arm1176jzf-s_vfp"]=bcm27xx-bcm2708 )
-archs+=( ["arm_arm926ej-s"]=mxs-generic )
-archs+=( ["arm_cortex-a15_neon-vfpv4"]=ipq806x-generic )
-archs+=( ["arm_cortex-a5_neon-vfpv4"]=at91-sama5 )
-archs+=( ["arm_cortex-a7"]=sunxi-cortexa7 )
-archs+=( ["arm_cortex-a7_neon-vfpv4"]=ipq40xx-generic )
-archs+=( ["arm_cortex-a8_vfpv3"]=sunxi-cortexa8 )
-archs+=( ["arm_cortex-a9"]=bcm53xx-generic )
-archs+=( ["arm_cortex-a9_neon"]=zynq-generic )
-archs+=( ["arm_cortex-a9_vfpv3"]=mvebu-cortexa9 )
-archs+=( ["arm_fa526"]=gemini-generic )
-archs+=( ["arm_mpcore"]=oxnas-ox820 )
-# archs+=( ["arm_mpcore_vfp"]=cns3xxx-generic ) # This architecture seems to be abandoned in OpenWrt 21.02
-archs+=( ["arm_xscale"]=kirkwood-generic )
-archs+=( ["i386_geode"]=x86-geode )
-archs+=( ["i386_pentium4"]=x86-generic )
-archs+=( ["mips64_octeon"]=octeon-generic )
-archs+=( ["mips_24kc"]=ath79-generic )
-archs+=( ["mips_mips32"]=bcm63xx-generic )
-archs+=( ["mipsel_24kc"]=ramips-mt7620 )
-archs+=( ["mipsel_24kc_24kf"]=pistachio-generic )
-archs+=( ["mipsel_74kc"]=bcm47xx-mips74k )
-archs+=( ["mipsel_mips32"]=bcm47xx-legacy )
-archs+=( ["mipsel_mips32r2"]=ramips-rt288x )
-archs+=( ["powerpc_464fp"]=apm821xx-nand )
-archs+=( ["powerpc_8540"]=mpc85xx-p1010 )
-archs+=( ["x86_64"]=x86-64 )
-
-for key in ${!archs[@]}; do
-	SDK="${archs[${key}]}"
+for SDK in ${sdks[@]}; do
 	[ "$FREIFUNK_OPENWRT_BASE" != "snapshot" ] && SDK+="-$FREIFUNK_OPENWRT_BASE"
+	echo "building $SDK"
 	if [ -n "$BUILD_PARALLEL" ]; then
 		(./build_feed "$SDK" "$FEED" "$OUTPUT_DIR" PARALLEL) &
 	else
