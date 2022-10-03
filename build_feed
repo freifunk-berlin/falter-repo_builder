@@ -11,6 +11,9 @@ if [ "$1" == "incontainer" ]; then
   fi
   echo "$FEED_LINE" >> feeds.conf.default
 
+  logfile="bin/packages/$INSTR_SET/$FEED_NAME/build.log"
+  mkdir -p "$(dirname "$logfile")"
+
   # the grep pipes further down would otherwise be buffered
   unbuf="stdbuf --output=0 --error=0"
   {
@@ -23,7 +26,8 @@ if [ "$1" == "incontainer" ]; then
     make package/index V=s
   } |& $unbuf grep -v 'warning: ignoring type redefinition' \
     | $unbuf grep -v 'warning: defaults for choice' \
-    | $unbuf grep -v "linux/Makefile' has a dependency"
+    | $unbuf grep -v "linux/Makefile' has a dependency" \
+    | tee "$logfile"
 else
   SDK_TAG="$1"
   FEED_LINE="$2"
