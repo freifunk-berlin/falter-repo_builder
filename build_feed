@@ -19,6 +19,7 @@ if [ "$1" == "incontainer" ]; then
   {
     ./scripts/feeds update -a # alternatively: -p luci falter
     ./scripts/feeds install -a -p "$FEED_NAME"
+    echo CONFIG_SIGNED_PACKAGES=n >> .config
     make defconfig
     for pkg in $(find feeds/$FEED_NAME -name Makefile | awk -F/ '{print $(NF - 1)}'); do
       make -j8 V=s "package/$pkg/compile"
