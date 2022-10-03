@@ -3,7 +3,7 @@
 set -ex
 
 if [ "$1" == "incontainer" ]; then
-  INSTR_SET="$(ls build_dir | awk -F'-|(_musl)' '{print $2}')"
+  INSTR_SET="$(ls build_dir | awk -F'(target-)|(_musl)' '{print $2}' | tr '+' '_')"
   if [ -d "bin/packages/$INSTR_SET" ]
   then
     echo "$INSTR_SET was built before. Skip";
