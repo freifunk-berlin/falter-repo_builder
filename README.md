@@ -1,3 +1,7 @@
+# Deprecation Notice
+
+The repobuilder was deprecated in favor of a new `[build.sh`-script](https://github.com/freifunk-berlin/falter-packages/tree/master/build). It resides in the [packages-repository](https://github.com/freifunk-berlin/falter-packages). This repository is kept for historical reasons.
+
 ## Overall Project Structure and Falter Repositories
 The [Falter project](https://github.com/freifunk-berlin/falter-packages) builds a modern OpenWrt-based firmware for Freifunk Berlin. We split our code on different repositories. For the beginning there are three main repositories you should know:
 
